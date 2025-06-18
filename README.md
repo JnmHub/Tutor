@@ -35,7 +35,7 @@
 
 以下是系统最终确定的9个核心数据表结构。所有表名均已添加 jnm_ 前缀。
 
-### 1. 学生表 `jnm_students`
+
 
 ```sql
 CREATE TABLE `jnm_students` (
