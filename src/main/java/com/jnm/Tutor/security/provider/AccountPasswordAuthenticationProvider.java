@@ -1,5 +1,7 @@
 package com.jnm.Tutor.security.provider;
 
+import com.jnm.Tutor.security.token.AccountPasswordAuthenticationToken;
+import com.jnm.Tutor.service.LoginService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -11,9 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
-
-import com.jnm.Tutor.security.token.AccountPasswordAuthenticationToken;
-import com.jnm.Tutor.service.LoginService;
 
 
 public class AccountPasswordAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
@@ -48,14 +47,8 @@ public class AccountPasswordAuthenticationProvider extends AbstractUserDetailsAu
         try {
             AccountPasswordAuthenticationToken token = (AccountPasswordAuthenticationToken) authentication;
             // 根据用户名查询用户，并返回UserDetails
-            String userType = token.getUserType();
-            String openId = token.getOpenId();
             UserDetails loadedUser;
-            if("".equals(userType)){
-                loadedUser = loginService.loadByAccount(username,openId);
-            }else{
-                loadedUser = loginService.loadByAccountType(username, token.getUserType(),openId);
-            }
+            loadedUser = loginService.loadByAccountType(username, token.getUserType());
             if (loadedUser == null) {
                 throw new InternalAuthenticationServiceException("UserDetailsService returned null, which is an interface contract violation");
             } else {

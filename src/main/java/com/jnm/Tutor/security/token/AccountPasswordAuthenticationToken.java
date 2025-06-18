@@ -8,13 +8,16 @@ import java.util.Collection;
 
 public class AccountPasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
     private final String userType;
-    private final String openId;
+    private String openId;
     public AccountPasswordAuthenticationToken(Object principal, Object credentials, String userType,String openId) {
         super(principal, credentials);
         this.userType = userType;
         this.openId = openId;
     }
-
+    public AccountPasswordAuthenticationToken(Object principal, Object credentials, String userType) {
+        super(principal, credentials);
+        this.userType = userType;
+    }
     public AccountPasswordAuthenticationToken(Object principal, Object credentials, String userType, Collection<? extends GrantedAuthority> authorities,String openId) {
         super(principal, credentials, authorities);
         this.userType = userType;

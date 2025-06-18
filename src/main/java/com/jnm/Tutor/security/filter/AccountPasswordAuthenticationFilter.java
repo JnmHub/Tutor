@@ -10,12 +10,11 @@ import com.jnm.Tutor.security.token.AccountPasswordAuthenticationToken;
 import com.jnm.Tutor.util.ResponseUtil;
 import com.jnm.Tutor.util.StringUtil;
 import com.jnm.Tutor.util.TokenUtil;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
@@ -32,12 +31,11 @@ import java.util.Map;
 
 
 public class AccountPasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    public static final String SPRING_SECURITY_FORM_ACCOUNT_KEY = "username";
+    public static final String SPRING_SECURITY_FORM_ACCOUNT_KEY = "account";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
     public static final String SPRING_SECURITY_FORM_USERTYPE_KEY = "userType";
     public static final String SPRING_SECURITY_FORM_VERIFY_KEY_KEY = "verifyKey";
     public static final String SPRING_SECURITY_FORM_VERIFY_CODE_KEY = "verifyCode";
-    public static final String SPRING_SECURITY_FORM_OPEN_ID = "openId";
     @Autowired
     CustomCacheManager cacheManager;
     private String accountParameter = SPRING_SECURITY_FORM_ACCOUNT_KEY;
@@ -45,11 +43,25 @@ public class AccountPasswordAuthenticationFilter extends AbstractAuthenticationP
     private String userTypeParameter = SPRING_SECURITY_FORM_USERTYPE_KEY;
     private String verifyKeyParameter = SPRING_SECURITY_FORM_VERIFY_KEY_KEY;
     private String verifyCodeParameter = SPRING_SECURITY_FORM_VERIFY_CODE_KEY;
-    private String openIdParameter = SPRING_SECURITY_FORM_OPEN_ID;
     private boolean postOnly = true;
 
     public AccountPasswordAuthenticationFilter() {
         super(new AntPathRequestMatcher("/login", "POST"));
+    }
+
+    @NotNull
+    private static DataResult<Map<String, Object>> getMapDataResult(User user, String token) {
+        Map<String, Object> data = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
+        map.put("id", user.getId());
+        map.put("account", user.getAccount());
+        map.put("name", user.getName());
+        data.put("token", token);
+        data.put("user", map);
+        data.put("role", user.getUserType());
+//        data.put("tokenExpiresIn", TokenUtil.tokenExpiration);
+//        data.put("tokenFreeTimeout", TokenUtil.tokenFreeTimeout);
+        return new DataResult<>(data);
     }
 
     @Override
@@ -66,35 +78,22 @@ public class AccountPasswordAuthenticationFilter extends AbstractAuthenticationP
         String jsonData = requestBody.toString();
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> data = mapper.readValue(jsonData, Map.class);
-        String username = obtainAccount(data);
+        String account = obtainAccount(data);
         String password = obtainPassword(data);
         String userType = obtainUserType(data);
-        String verifyKey = obtainVerifyKey(data);
-        String verifyCode = obtainVerifyCode(data);
-        String openId = obtainOpenIdParameter(data);
-        if (userType == null) {
-            userType = "";
+
+        if (StringUtil.isNullOrEmpty(userType)) {
+            throw new VerifyException("用户类型不可为空");
         }
         AccountPasswordAuthenticationToken authRequest;
-        if (StringUtil.isNullOrEmpty(username)) {
+        if (StringUtil.isNullOrEmpty(account)) {
             throw new VerifyException("用户名不可为空");
         }
         if (StringUtil.isNullOrEmpty(password)) {
             throw new VerifyException("密码不可为空");
         }
-        if (StringUtil.isNullOrEmpty(verifyKey) || StringUtil.isNullOrEmpty(verifyCode)) {
-            throw new VerifyException("验证码不能为空");
-        }
-        Cache cache = cacheManager.getCache("verifyImg");
-        if (cache != null) {
-            String cachedCode = cache.get(verifyKey, String.class);
-            if (cachedCode == null || !cachedCode.equalsIgnoreCase(verifyCode)) {
-                throw new VerifyException("验证码错误");
-            }
-            cache.evict(verifyKey);
-        }
         authRequest = new AccountPasswordAuthenticationToken(
-                username, password, userType,openId);
+                account, password, userType);
         setDetails(request, authRequest);
         return this.getAuthenticationManager().authenticate(authRequest);
     }
@@ -106,18 +105,8 @@ public class AccountPasswordAuthenticationFilter extends AbstractAuthenticationP
         }
         User user = (User) authResult.getPrincipal();
         String token;
-        token = TokenUtil.createToken(user.getId(), user.getName(), user.getUserType());
-        Map<String, Object> data = new HashMap<>();
-        Map<String, String> map = new HashMap<>();
-        map.put("id", user.getId());
-        map.put("username", user.getUsername());
-        map.put("name", user.getName());
-        data.put("token", token);
-        data.put("user", map);
-        data.put("roles", user.getUserType());
-        data.put("tokenExpiresIn", TokenUtil.tokenExpiration);
-        data.put("tokenFreeTimeout", TokenUtil.tokenFreeTimeout);
-        DataResult<Map<String, Object>> result = new DataResult<>(data);
+        token = TokenUtil.createToken(user.getId(), user.getName(), user.getUserType(),true);
+        DataResult<Map<String, Object>> result = getMapDataResult(user, token);
         ResponseUtil.outOfJson(response, result);
     }
 
@@ -148,9 +137,6 @@ public class AccountPasswordAuthenticationFilter extends AbstractAuthenticationP
 
     protected String obtainVerifyCode(Map<String, String> request) {
         return request.get(this.verifyCodeParameter);
-    }
-    protected String obtainOpenIdParameter(Map<String, String> request) {
-        return request.get(this.openIdParameter);
     }
 
 

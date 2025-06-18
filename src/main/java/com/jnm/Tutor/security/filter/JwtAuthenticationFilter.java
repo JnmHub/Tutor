@@ -1,5 +1,9 @@
 package com.jnm.Tutor.security.filter;
 
+import com.jnm.Tutor.controller.result.Result;
+import com.jnm.Tutor.security.token.JwtAuthenticationToken;
+import com.jnm.Tutor.util.ResponseUtil;
+import com.jnm.Tutor.util.TokenUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.micrometer.common.util.StringUtils;
@@ -18,11 +22,6 @@ import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.jnm.Tutor.controller.result.Result;
-import com.jnm.Tutor.security.token.JwtAuthenticationToken;
-import com.jnm.Tutor.util.ResponseUtil;
-import com.jnm.Tutor.util.TokenUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -78,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authResult);
         long ExpireTime = claims.getIssuedAt().getTime() + TokenUtil.tokenExpiration;
         if (ExpireTime - System.currentTimeMillis() < TokenUtil.tokenFreeTimeout) {  // 判断是否快过期
-            String newToken = TokenUtil.createToken(claims.getId(), claims.getSubject(), (String) claims.get("userType"));
+            String newToken = TokenUtil.createToken(claims.getId(), claims.getSubject(), (String) claims.get("userType"),true);
             response.setHeader("Authorization", newToken);
             response.setHeader("tokenExpiresIn", String.valueOf(TokenUtil.tokenExpiration));
             response.setHeader("tokenFreeTimeout", String.valueOf(TokenUtil.tokenFreeTimeout));

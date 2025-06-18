@@ -1,16 +1,17 @@
 package com.jnm.Tutor.controller;
 
+import com.jnm.Tutor.cache.CustomCacheManager;
+import com.jnm.Tutor.exception.ServerException;
+import com.jnm.Tutor.model.enums.ErrorEnum;
+import com.jnm.Tutor.util.UUIDFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.jnm.Tutor.cache.CustomCacheManager;
-import com.jnm.Tutor.exception.ServerException;
-import com.jnm.Tutor.model.enums.ErrorEnum;
-import com.jnm.Tutor.util.UUIDFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-
+@Tag(name = "验证码模块")
 @RestController
 public class VerifyImageController {
     private final char[] codeSequence = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J',
@@ -32,6 +33,9 @@ public class VerifyImageController {
     @Autowired
     CustomCacheManager cacheManager;
 
+
+
+    @Operation( summary = "验证码获取")
     @GetMapping("/verify")
     public Map<String, String> execute(@RequestParam(value = "width", required = false, defaultValue = "70") int width,
                                        @RequestParam(value = "height", required = false, defaultValue = "30") int height,

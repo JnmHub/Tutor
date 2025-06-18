@@ -11,7 +11,7 @@ import java.util.Date;
 
 
 public class TokenUtil {
-    public static final long tokenExpiration = 24 * 3600 * 1000 * 7; // 7天
+    public static final long tokenExpiration = 24 * 3600 * 1000 * 365L ; // 7天
 //    public static final long tokenExpiration = 250 * 60 * 16; // 4分钟
 //    public static final long tokenExpiration = 250 * 1000; // 250 秒
 //    public static final long tokenFreeTimeout = 2 * 60 * 60 * 1000; // 2小时

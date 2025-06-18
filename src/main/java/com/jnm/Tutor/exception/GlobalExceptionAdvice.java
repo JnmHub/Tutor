@@ -1,17 +1,18 @@
 package com.jnm.Tutor.exception;
 
+import com.jnm.Tutor.controller.result.Result;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import com.jnm.Tutor.controller.result.Result;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 
-
-//@RestControllerAdvice
+@Hidden
+@RestControllerAdvice
 public class GlobalExceptionAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> defaultException(Exception e) {

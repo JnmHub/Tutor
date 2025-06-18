@@ -4,7 +4,7 @@ spring:
       pool:
         size: 10
   datasource:
-    url: jdbc:mysql://localhost:3306/mallJnm?rewriteBatchedStatements=true&useSSL=false
+    url: jdbc:mysql://localhost:3306/study?rewriteBatchedStatements=true&useSSL=false
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -41,3 +41,12 @@ mybatis-plus:
 #server:
 #  servlet:
 #    context-path: /jnm
+springdoc:
+  api-docs:
+    path: /swagger-ui/v3 # API json文件的访问路径
+  swagger-ui:
+    path: /swagger-ui.html # Swagger UI界面的访问路径
+  info:
+    title: 家教平台 API 文档
+    description: "一个连接学生与教师的家教服务平台"
+    version: "1.0.0"

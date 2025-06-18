@@ -1,11 +1,5 @@
 package com.jnm.Tutor.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.jnm.Tutor.exception.ServerException;
 import com.jnm.Tutor.exception.ValidatedException;
 import com.jnm.Tutor.model.UploadFile;
@@ -13,18 +7,25 @@ import com.jnm.Tutor.model.enums.ErrorEnum;
 import com.jnm.Tutor.service.UploadFileService;
 import com.jnm.Tutor.util.MinioUtil;
 import com.jnm.Tutor.util.UUIDFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
 
-
+@Tag(name="图片上传模块")
 @RestController
 public class FileController {
     private static final String SUFFIX = ".jpg,.jpeg,.png";
 
     @Autowired
     UploadFileService uploadFileService;
-
+    @Operation( summary = "图片上传")
     @PostMapping("/image")
     public String uploadImage(@RequestParam("file") MultipartFile file) {
         // 检查文件是否为空
@@ -62,7 +63,7 @@ public class FileController {
         // 返回图片的相对链接地址
         return newFileName;
     }
-
+    @Operation( summary = "图片返回")
     @GetMapping("/image/{name}")
     public void getImage(@PathVariable String name, HttpServletResponse response) {
         response.setContentType(determineContentType(name));

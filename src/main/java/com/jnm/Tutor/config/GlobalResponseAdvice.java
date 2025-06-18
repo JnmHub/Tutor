@@ -1,5 +1,9 @@
 package com.jnm.Tutor.config;
 
+import com.jnm.Tutor.controller.result.DataResult;
+import com.jnm.Tutor.controller.result.Result;
+import com.jnm.Tutor.util.JSONUtil;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -9,14 +13,9 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.jnm.Tutor.controller.result.DataResult;
-import com.jnm.Tutor.controller.result.Result;
-import com.jnm.Tutor.util.JSONUtil;
-
 import java.util.Map;
-
-
-@RestControllerAdvice
+@Hidden
+@RestControllerAdvice(basePackages = "com.jnm.Tutor.controller")
 public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
     /**
      * 判定哪些请求要执行beforeBodyWrite
